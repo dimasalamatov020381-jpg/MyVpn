@@ -13,10 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Unzip project
+      - name: Unzip project and fix parser
         run: |
           ZIP_FILE=$(ls *.zip | head -n 1)
           unzip -o "$ZIP_FILE"
+          sed -i 's/\.replace("\\s"\.toRegex(), "")/.filter { !it.isWhitespace() }/g' app/src/main/java/com/simplevpn/app/parser/LinkParser.kt
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -35,7 +36,7 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build Debug APK
-        run: gradle assembleDebug --stacktrace
+        run: gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
